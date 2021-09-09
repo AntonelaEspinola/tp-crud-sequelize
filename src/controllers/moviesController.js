@@ -2,6 +2,7 @@ const { validationResult } = require('express-validator');
 
 const db = require('../database/models');
 const sequelize = db.sequelize;
+const moment = require('moment');
 
 //Otra forma de llamar a los modelos
 const Movies = db.Movie;
@@ -54,43 +55,65 @@ const moviesController = {
             console.log(error)
         })
     },
-    create: function (req, res) {
-         db.Movie.create({
-           ...req.body
-       })
-       .then((response) =>{
-           console.log(response);
-           res.redirect('/movies')
-       })
-       .catch((error) => {
-           console.log(error)
-       })
+     create: function (req, res) {
+        let errors = validationResult(req);
+
+        if (errors.isEmpty()) {
+            db.Movie.create({
+                ...req.body,
+            })
+                .then((result) => {
+                    console.log(result);
+                    res.redirect('/movies');
+                })
+                .catch((error) => console.log(error));
+        } else {
+            res.render('moviesAdd', {
+                errores: errors.mapped(),
+                old: req.body,
+            });
+        }
     },
     edit: function(req, res) {
         db.Movie.findByPk(req.params.id)
         .then((Movie) => {
             res.render('moviesEdit', {
-                Movie
+                Movie,
+                fecha: moment(Movie.release_date).format('YYYY-MM-DD'),
             })
         })
         .catch((error) =>{
             console.log(error)
         })
     },
-    update: function (req,res) {
-        db.Movie.update({
-            ...req.body
-        },
-       { where : {
-            id: req.params.id
-        }})
-        .then((Movie) => {
-            res.redirect('/movies')
+    update: function (req, res) {
+        let errors = validationResult(req);
+
+        if (errors.isEmpty()) {
+            db.Movie.update(
+                {
+                    ...req.body,
+                },
+                {
+                    where: {
+                        id: req.params.id,
+                    },
+                }
+            )
+                .then((Movie) => {res.redirect('/movies',{Movie})})
+                .catch((error) => console.log(error));
+        } else {
+            db.Movie.findByPk(req.params.id)
+                .then(Movie =>{
+                    res.render("moviesEdit",{
+                        errores : errors.mapped(),
+                        old : req.body,
+                        Movie ,
+                fecha: moment(Movie.release_date).format('YYYY-MM-DD'),
+            });
         })
-        .catch((error) => {
-            console.log(error)
-        })
-    },
+    }
+},
     delete: function (req, res) {
         db.Movie.findByPk(req.params.id)
         .then((Movie) => {
