@@ -21,7 +21,12 @@
     <ul>
         <% for( let i = 0; i < movies.length; i++ ) { %>
         <li>
-            <a href="/movies/detail/<%= movies[i].id %>"><%= movies[i].title %></a>
+            <a href="/movies/detail/<%= movies[i].id %>"> 
+                <% if (movies[i].generos) { %>
+                    <%= movies[i].title %> - <%=movies[i].generos.name%></a>
+                <% } else{%>
+                    <%=  movies[i].title %>
+                    <% }%>
         </li>
         <% } %>
 

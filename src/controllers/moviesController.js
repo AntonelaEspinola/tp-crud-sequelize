@@ -9,7 +9,9 @@ const Movies = db.Movie;
 
 const moviesController = {
     'list': (req, res) => {
-        db.Movie.findAll()
+        db.Movie.findAll({
+            include: [{association: 'generos'}]
+        })
             .then(movies => {
                 res.render('moviesList.ejs', {movies})
             })
