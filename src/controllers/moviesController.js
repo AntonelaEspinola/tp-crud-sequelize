@@ -102,7 +102,7 @@ const moviesController = {
                     },
                 }
             )
-                .then((Movie) => {res.redirect('/movies',{Movie})})
+                .then((Movie) => {res.redirect('/movies')})
                 .catch((error) => console.log(error));
         } else {
             db.Movie.findByPk(req.params.id)
